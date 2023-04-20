@@ -1,0 +1,36 @@
+pipeline{
+        agent any
+    parameters {
+        choice(name: "Region", choices: ["us-east-1", "us-east-2", "us-west-1"], description: "Select the region")
+        choice(name: "service", choices: ["ec2", "vpc", "s3"], description: "Select the service")
+        text(name: "path", defaultValue: "", description: "Enter the path of the tf file")
+    }
+     stages{
+         stage('Git Checkout'){
+          steps{
+                    sh """
+                    echo "Get terraform version"
+                    terraform -v
+                    echo "starting pipeline"
+                    echo "chnaging directory"
+                    cd "/var/lib/jenkins/git/"
+                    echo "removing old files"
+                    sudo rm -rf *
+                    echo "Git initilization started"
+                    git init 
+                    echo "Git initilization completed"
+                    git([url: 'https://github.com/qtreeumesh/terraform', branch: 'master'])
+                    echo "Git checkout completed"
+                    """
+            }
+         }
+          stage('Terraform phase'){
+          steps{
+                    sh """
+                        terraform -chdir="/var/lib/jenkins/git/terraform/$service/$path" init 
+                        terraform -chdir="/var/lib/jenkins/git/terraform/$service/$path" plan --auto-approve -var="region=$Region"
+                        """
+            }
+         }
+     }
+}
