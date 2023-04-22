@@ -7,7 +7,7 @@ pipeline{
         
         stage('git checkout'){
             steps{
-                git branch: 'master', url: 'https://github.com/qtreeumesh/Jenkinst'
+                git branch: 'master', url: 'https://github.com/qtreeumesh/Jenkins'
             }
         }
         stage('terraform init'){
@@ -23,11 +23,6 @@ pipeline{
          stage('terraform apply'){
             steps{
                  sh "terraform apply -var 'region=${params.region}' --auto-approve"
-            }
-        }
-        stage('terraform destroy'){
-            steps{
-              sh "terraform destroy -var 'region=${params.region}' --auto-approve"
             }
         }
     }
